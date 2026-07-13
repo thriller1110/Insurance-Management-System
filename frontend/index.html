@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insure Tracker Dashboard</title>
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- App Layout Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <span class="logo-icon">🛡️</span>
+                <h2>Insure Tracker</h2>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-tab="customers">
+                    <span class="nav-icon">👥</span> Customers
+                </a>
+                <a href="#" class="nav-item" data-tab="policies">
+                    <span class="nav-icon">📜</span> Policies
+                </a>
+                <a href="#" class="nav-item" data-tab="leads">
+                    <span class="nav-icon">⚡</span> Lead Management
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Version 1.0.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header containing Page Title and Role Selection -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p class="subtitle">System Status and Quick Operations</p>
+                </div>
+                <!-- Interactive Role Switcher for testing API access matrix -->
+                <div class="role-switcher">
+                    <span class="role-label">🔐 Security Context:</span>
+                    <div class="role-buttons">
+                        <button class="role-btn btn-none" data-role="NONE" title="Send request with no X-Auth-Token (returns 401)">No Token</button>
+                        <button class="role-btn btn-agent" data-role="AGENT" title="Send request as AGENT (GET/POST/PUT work, DELETE returns 403)">Agent</button>
+                        <button class="role-btn btn-admin active" data-role="ADMIN" title="Send request as ADMIN (Full access)">Admin</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab Panels Content Container -->
+            <section class="tab-content">
+                
+                <!-- 1. DASHBOARD TAB -->
+                <div id="tab-dashboard" class="tab-pane active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card glass">
+                            <div class="kpi-icon customer-kpi">👥</div>
+                            <div class="kpi-info">
+                                <h3>Total Customers</h3>
+                                <p class="kpi-value" id="kpi-customers-count">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card glass">
+                            <div class="kpi-icon policy-kpi">📜</div>
+                            <div class="kpi-info">
+                                <h3>Active Policies</h3>
+                                <p class="kpi-value" id="kpi-policies-count">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card glass">
+                            <div class="kpi-icon lead-kpi">⚡</div>
+                            <div class="kpi-info">
+                                <h3>Total Leads</h3>
+                                <p class="kpi-value" id="kpi-leads-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-details grid-2">
+                        <div class="details-card glass">
+                            <h3>Quick Status Indicators</h3>
+                            <div class="status-list">
+                                <div class="status-item">
+                                    <span>Database Connectivity</span>
+                                    <span class="badge badge-success">Online</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Authentication Middleware</span>
+                                    <span class="badge badge-success">Active</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>API Status Check</span>
+                                    <span class="badge badge-success">Ready</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="details-card glass">
+                            <h3>Swagger & APIs</h3>
+                            <p>Test the raw endpoints and inspect API schemas via the Swagger documentation panel.</p>
+                            <a href="/swagger-ui.html" target="_blank" class="action-link-btn">Open Swagger UI ↗</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. CUSTOMERS TAB -->
+                <div id="tab-customers" class="tab-pane">
+                    <div class="action-bar">
+                        <div class="search-box glass">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="customer-search-input" placeholder="Search by name or email...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openCustomerModal()">+ Add Customer</button>
+                    </div>
+
+                    <div class="table-container glass">
+                        <table id="customers-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Date of Birth</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table-body">
+                                <!-- Loaded dynamically via fetch -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. POLICIES TAB -->
+                <div id="tab-policies" class="tab-pane">
+                    <div class="action-bar">
+                        <div class="search-box glass">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="policy-search-input" placeholder="Search by number or name...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openPolicyModal()">+ Add Policy</button>
+                    </div>
+
+                    <div class="table-container glass">
+                        <table id="policies-table">
+                            <thead>
+                                <tr>
+                                    <th>Policy Number</th>
+                                    <th>Policy Name</th>
+                                    <th>Type</th>
+                                    <th>Premium Amount</th>
+                                    <th>Term (Months)</th>
+                                    <th>Start Date</th>
+                                    <th>Customer ID & Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="policies-table-body">
+                                <!-- Loaded dynamically via fetch -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. LEADS TAB -->
+                <div id="tab-leads" class="tab-pane">
+                    <div class="action-bar">
+                        <div class="search-box glass">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="lead-search-input" placeholder="Search by prospect name or agent...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openLeadModal()">+ Add Lead</button>
+                    </div>
+
+                    <div class="table-container glass">
+                        <table id="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Prospect Name</th>
+                                    <th>Contact Info</th>
+                                    <th>Referral Source</th>
+                                    <th>Status</th>
+                                    <th>Assigned Agent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-table-body">
+                                <!-- Loaded dynamically via fetch -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- CUSTOMER MODAL -->
+    <div id="customer-modal" class="modal-overlay">
+        <div class="modal-box glass">
+            <div class="modal-header">
+                <h2 id="customer-modal-title">Add Customer</h2>
+                <button class="close-btn" onclick="closeCustomerModal()">×</button>
+            </div>
+            <form id="customer-form" onsubmit="saveCustomer(event)">
+                <input type="hidden" id="customer-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="customer-firstName">First Name</label>
+                        <input type="text" id="customer-firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-lastName">Last Name</label>
+                        <input type="text" id="customer-lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-email">Email (Unique)</label>
+                        <input type="email" id="customer-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-phoneNumber">Phone Number</label>
+                        <input type="text" id="customer-phoneNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-dateOfBirth">Date of Birth</label>
+                        <input type="date" id="customer-dateOfBirth" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-accountStatus">Account Status</label>
+                        <select id="customer-accountStatus" required>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCustomerModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- POLICY MODAL -->
+    <div id="policy-modal" class="modal-overlay">
+        <div class="modal-box glass">
+            <div class="modal-header">
+                <h2 id="policy-modal-title">Add Policy</h2>
+                <button class="close-btn" onclick="closePolicyModal()">×</button>
+            </div>
+            <form id="policy-form" onsubmit="savePolicy(event)">
+                <input type="hidden" id="policy-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="policy-number">Policy Number (Unique)</label>
+                        <input type="text" id="policy-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-name">Policy Name</label>
+                        <input type="text" id="policy-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-type">Policy Type</label>
+                        <select id="policy-type" required>
+                            <option value="LIFE">LIFE</option>
+                            <option value="HEALTH">HEALTH</option>
+                            <option value="AUTO">AUTO</option>
+                            <option value="HOME">HOME</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-premium">Premium Amount ($)</label>
+                        <input type="number" step="0.01" id="policy-premium" required min="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-term">Coverage Term (Months)</label>
+                        <input type="number" id="policy-term" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-startDate">Effective Start Date</label>
+                        <input type="date" id="policy-startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="policy-customerId">Associated Customer ID</label>
+                        <select id="policy-customerId" required>
+                            <!-- Dynamically loaded with customer options -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closePolicyModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Policy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LEAD MODAL -->
+    <div id="lead-modal" class="modal-overlay">
+        <div class="modal-box glass">
+            <div class="modal-header">
+                <h2 id="lead-modal-title">Add Lead</h2>
+                <button class="close-btn" onclick="closeLeadModal()">×</button>
+            </div>
+            <form id="lead-form" onsubmit="saveLead(event)">
+                <input type="hidden" id="lead-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="lead-prospectName">Prospect Name</label>
+                        <input type="text" id="lead-prospectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-contactInfo">Contact Info</label>
+                        <input type="text" id="lead-contactInfo" required placeholder="Email or Phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-referralSource">Referral Source</label>
+                        <input type="text" id="lead-referralSource">
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-leadStatus">Lead Status</label>
+                        <select id="lead-leadStatus" required>
+                            <option value="NEW">NEW</option>
+                            <option value="CONTACTED">CONTACTED</option>
+                            <option value="CONVERTED">CONVERTED</option>
+                            <option value="CLOSED">CLOSED</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-assignedAgentName">Assigned Agent Name</label>
+                        <input type="text" id="lead-assignedAgentName">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeLeadModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION WRAPPER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
